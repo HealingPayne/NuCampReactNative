@@ -26,11 +26,18 @@ const mapDispatchToProps = {
 
 function RenderCampsite(props) {
     const { campsite } = props;
+    const view = React.createRef();
+
     //Look for a gesture finger (drag) from the left < -200 (bigger the number the smaller the distance)
     const recognizeDrag = ({ dx }) => (dx < -200) ? true : false;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true, 
+        onPanResponderGrant: () => {
+            //rubberband, bounce fadeout are able to be used
+            view.current.fadeIn(1000)
+                .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
+        },
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end', gestureState);
             //returns true if gesture pixels is more than 200 pixels from the left
@@ -62,6 +69,7 @@ function RenderCampsite(props) {
                 animation='fadeInDown' 
                 duration={2000} 
                 delay={1000}
+                ref={view}
                 {...panResponder.panHandlers} >
                 <Card
                     featuredTitle={campsite.name}
