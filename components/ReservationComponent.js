@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Animatable from 'react-native-animatable';
+import * as Notifications from 'expo-notifications';
 
 class Reservation extends Component {
     constructor(props) {
@@ -45,7 +46,10 @@ class Reservation extends Component {
                 },
                 {
                     text: 'OK',
-                    onPress: () => { this.resetForm() }
+                    onPress: () => {
+                        this.presentLocalNotification(this.state.date.toLocaleDateString('en-US'));
+                        this.resetForm();
+                    }
                 }
             ],
             { cancelable: false } //Must use buttons to close
@@ -60,6 +64,39 @@ class Reservation extends Component {
             showCalendar: false,
             showModal: false
         });
+    }
+
+    async presentLocalNotification(date) {
+        //Check for permissions
+        function sendNotification() {
+            Notifications.setNotificationHandler({
+                //Allow (Override) notifications
+                handleNotification: async () => ({
+                    shouldShowAlert: true
+                })
+            });
+
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Your Campsite Reservation Search',
+                    //Ticks
+                    body: `Search for ${date} requested`
+                },
+                //Trigger to null causes immediate firing of Notification
+                // this can be used for scheduling and repeating
+                trigger: null
+            });
+        }
+        // Cheek to see if we have permisssions on the device
+        //   await is simlilar to the then in a promise
+        //     Notifications.getPermissionsAsync() is the promise
+        let permissions = await Notifications.getPermissionsAsync();
+        if (!permissions.granted) {
+            permissions = await Notifications.requestPermissionsAsync();
+        }
+        if (permissions.granted) {
+            sendNotification();
+        }
     }
 
     render() {
