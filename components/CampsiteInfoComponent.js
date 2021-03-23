@@ -30,17 +30,20 @@ function RenderCampsite(props) {
 
     //Look for a gesture finger (drag) from the left < -200 (bigger the number the smaller the distance)
     const recognizeDrag = ({ dx }) => (dx < -200) ? true : false;
+    const recognizeComment = ({ dx }) => (dx > 200) ? true : false;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true, 
         onPanResponderGrant: () => {
             //rubberband, bounce fadeout are able to be used
-            view.current.fadeIn(1000)
+            view.current.rubberBand(1000)
                 .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
         },
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end', gestureState);
-            //returns true if gesture pixels is more than 200 pixels from the left
+            //returns true if gesture pixels is more than 200 pixels right to left
+           
+            //returns true if gesture pixels is more than 200 pixels from left to right
             if (recognizeDrag(gestureState)) {
                 Alert.alert(
                     'Add Favorite',
@@ -59,6 +62,9 @@ function RenderCampsite(props) {
                     ],
                     { cancelable: false } //Must use buttons to close
                 );
+            }
+            else if (recognizeComment(gestureState)) {
+                 props.onShowModal()
             }
             return true;
         }
@@ -85,7 +91,7 @@ function RenderCampsite(props) {
                             raised
                             reverse
                             onPress={() => props.favorite ?
-                                console.log('Already set as a favorite') : props.markFavorite()}
+                                console.log('Already set as a favorite') : props.markFavorite(campsite.id)}
                         />
                         <Icon
                             name='pencil'
