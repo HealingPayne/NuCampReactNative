@@ -53,8 +53,7 @@ class Favorites extends Component {
                                     //Force user to click a button
                                     { cancelable: false }
                                 )
-                            }
-                        >
+                            }>
                             <Text style={styles.deleteText}>Delete</Text>
                         </TouchableOpacity>
                     </View>
