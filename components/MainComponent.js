@@ -9,13 +9,18 @@ import Contact from './ContactComponent';
 import Favorites from './FavoritesComponent';
 import Login from './LoginComponent';
 
-import { View, Platform, StyleSheet, Text, ScrollView, Image } from 'react-native';
+import {
+    View, Platform, StyleSheet, Text, ScrollView, Image,
+    Alert, ToastAndroid
+} from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
 import { createAppContainer } from 'react-navigation';
 import { Icon } from 'react-native-elements';
 import SafeAreaView from 'react-native-safe-area-view';
 import { connect } from 'react-redux';
+import NetInfo from '@react-native-community/netinfo';
+
 import {
     fetchCampsites,
     fetchComments,
@@ -324,6 +329,21 @@ class Main extends Component {
         this.props.fetchComments();
         this.props.fetchPromotions();
         this.props.fetchPartners();
+
+        NetInfo.fetch()
+            .then(connectionInfo => {
+                (Platform.OS === 'ios')
+                    ? Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
+                    : ToastAndroid.show('Initial Network Connectivity Type: ' +
+                        connectionInfo.type, ToastAndroid.LONG); //LONG keep up for 3.5 seconds
+            });
+
+        this.unsubscribeNetInfo = NetInfo.addEventListener(connectionInfo => {
+            this.handleConnectivityChange(connectionInfo);
+        });
+    }
+    componentWillUnmount() {
+        this.unsubscribeNetInfo();
     }
     render() {
         return (
